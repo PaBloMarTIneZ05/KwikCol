@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kwik | Rápido. Fácil. Kwik.</title>
+    
+    <link rel="icon" href="https://i.ibb.co/fY3LPBjf/Logo-Kwik-Reducido.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&family=Syne:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --negro: #000000;
+            --blanco: #FFFFFF;
+            --morado: #7d39eb;
+            --verde: #C6FF36;
+            --gris-claro: #f4f4f4;
+            --gris-oscuro: #555555;
+            --font-titulares: 'Expose', 'Syne', sans-serif;
+            --font-textos: 'Chillax', 'Outfit', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: var(--blanco); color: var(--negro); font-family: var(--font-textos); line-height: 1.6; }
+        h1, h2, h3 { font-family: var(--font-titulares); font-weight: bold; text-transform: uppercase; }
+
+        /* HEADER */
+        header { background-color: var(--negro); color: var(--blanco); padding: 5px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--morado); }
+        .logo-img { height: 80px; width: auto; max-width: 250px; cursor: pointer; object-fit: contain; display: block; } 
+        nav { display: flex; gap: 20px; align-items: center; }
+        nav a { color: var(--blanco); text-decoration: none; font-size: 14px; font-weight: bold; cursor: pointer; transition: color 0.3s; }
+        nav a:hover { color: var(--morado); }
+        .cart-btn { background-color: var(--verde); color: var(--negro); padding: 8px 15px; border-radius: 20px; font-family: var(--font-titulares); transition: transform 0.3s; }
+        .cart-btn:hover { transform: scale(1.05); color: var(--negro); }
+
+        /* SECCIONES (SPA) */
+        .vista { display: none; min-height: 70vh; padding-bottom: 50px; }
+        .vista.activa { display: block; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* HERO Y CANVAS */
+        .hero { position: relative; background-color: var(--negro); color: var(--blanco); padding: 100px 5%; text-align: center; overflow: hidden; }
+        #particles-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .hero-content { position: relative; z-index: 1; }
+        .hero h1 { font-size: 4.8rem; line-height: 1.1; margin-bottom: 15px; }
+        .resalto-kwik { color: var(--morado); position: relative; display: inline-block; }
+        .resalto-kwik span { color: var(--blanco); } 
+        .hero p { font-size: 1.2rem; color: #ccc; margin-bottom: 30px; max-width: 700px; margin-left: auto; margin-right: auto; }
+        .btn-principal { background-color: var(--morado); color: var(--blanco); padding: 15px 35px; border: none; font-family: var(--font-titulares); font-size: 1.2rem; cursor: pointer; transition: 0.3s; border-radius: 4px; }
+        .btn-principal:hover { background-color: var(--verde); color: var(--negro); transform: translateY(-3px); }
+
+        /* CATEGORÍAS HOME */
+        .categorias { padding: 80px 5%; text-align: center; }
+        .categorias h2 { font-size: 2.5rem; margin-bottom: 40px; }
+        .grid-categorias { display: flex; flex-wrap: wrap; gap: 30px; max-width: 1200px; margin: 0 auto; justify-content: center; align-items: center; }
+        .card-cat { background-color: var(--blanco); padding: 50px 20px; border: 2px solid var(--negro); cursor: pointer; transition: all 0.3s; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 280px; min-height: 200px; }
+        .card-cat:hover { border-color: var(--morado); transform: translateY(-5px); box-shadow: 8px 8px 0px var(--morado); }
+        .card-cat h3 { font-size: clamp(1.3rem, 4vw, 1.8rem); margin-bottom: 10px; color: var(--negro); transition: color 0.3s; word-wrap: break-word; text-align: center; }
+        .card-cat:hover h3 { color: var(--morado); }
+        .card-cat p { text-align: center; color: var(--gris-oscuro); }
+        
+        /* CATÁLOGO DE PRODUCTOS */
+        .titulo-seccion { text-align: center; padding: 50px 0 30px; font-size: 3rem; color: var(--negro); }
+        .grid-productos { display: flex; flex-wrap: wrap; gap: 30px; padding: 0 5%; max-width: 1200px; margin: 0 auto; justify-content: center; }
+        .card-prod { border: 2px solid var(--negro); padding: 15px; text-align: left; transition: 0.3s; display: flex; flex-direction: column; background-color: var(--blanco); width: 300px; cursor: pointer; }
+        .card-prod:hover { border-color: var(--morado); box-shadow: 6px 6px 0px rgba(125, 57, 235, 0.2); transform: translateY(-3px); }
+        .prod-img { width: 100%; height: 300px; object-fit: cover; border: 2px solid var(--negro); margin-bottom: 15px; }
+        .prod-precio { font-size: 1.5rem; font-family: var(--font-titulares); color: var(--morado); margin: 10px 0; }
+
+        /* VISTA DE PRODUCTO (TIPO NIKE) */
+        .pdp-container { display: flex; flex-wrap: wrap; max-width: 1200px; margin: 40px auto; padding: 0 5%; gap: 40px; }
+        .pdp-gallery { flex: 1; min-width: 300px; display: flex; gap: 15px; }
+        .pdp-thumbnails { display: flex; flex-direction: column; gap: 10px; width: 80px; overflow-y: auto; max-height: 500px;}
+        .pdp-thumb { width: 100%; height: 80px; object-fit: cover; border: 1px solid #ccc; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .pdp-thumb.activa { border: 2px solid var(--negro); }
+        .pdp-main-img-container { flex: 1; background-color: var(--gris-claro); border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .pdp-main-img { width: 100%; height: auto; object-fit: cover; }
+        .pdp-info { flex: 1; min-width: 300px; display: flex; flex-direction: column; }
+        .pdp-title { font-size: 2.2rem; margin-bottom: 5px; }
+        .pdp-subtitle { font-size: 1.1rem; color: var(--gris-oscuro); margin-bottom: 15px; }
+        .pdp-price { font-size: 1.8rem; font-family: var(--font-titulares); color: var(--negro); margin-bottom: 5px; }
+        .pdp-promo { color: #008a00; font-weight: bold; margin-bottom: 25px; font-size: 0.95rem; }
+        .pdp-desc { margin-bottom: 30px; color: #444; }
+        .pdp-section-title { font-family: var(--font-titulares); font-size: 1rem; margin-bottom: 10px; display: flex; justify-content: space-between; }
+        .pdp-colors { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
+        .color-btn { padding: 8px 15px; border: 1px solid #ccc; background: var(--blanco); cursor: pointer; border-radius: 4px; transition: 0.2s; font-family: var(--font-textos); }
+        .color-btn.selected { border: 2px solid var(--negro); font-weight: bold; background: var(--gris-claro); }
+        .pdp-sizes { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-bottom: 30px; }
+        .size-btn { padding: 12px 0; border: 1px solid #ccc; background: var(--blanco); cursor: pointer; border-radius: 4px; text-align: center; transition: 0.2s; font-family: var(--font-textos); }
+        .size-btn:hover { border-color: var(--negro); }
+        .size-btn.selected { border: 2px solid var(--negro); font-weight: bold; }
+        .btn-add-pdp { background-color: var(--negro); color: var(--blanco); border: none; padding: 20px; font-family: var(--font-titulares); font-size: 1.2rem; cursor: pointer; border-radius: 50px; transition: 0.3s; width: 100%; margin-top: auto; }
+        .btn-add-pdp:hover { background-color: var(--verde); color: var(--negro); }
+
+        @media (max-width: 768px) {
+            .pdp-gallery { flex-direction: column-reverse; }
+            .pdp-thumbnails { flex-direction: row; width: 100%; overflow-x: auto; padding-bottom: 10px; max-height: auto;}
+            .pdp-thumb { width: 60px; height: 60px; flex-shrink: 0; }
+        }
+
+        /* CARRITO */
+        .carrito-container { max-width: 800px; margin: 0 auto; padding: 40px 5%; }
+        .item-carrito { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 20px 0; }
+        .item-info h4 { font-family: var(--font-titulares); font-size: 1.2rem; }
+        .item-info p { color: #555; }
+        .item-variante { font-size: 0.9rem; color: var(--gris-oscuro); margin-bottom: 5px; }
+        .btn-remove { background-color: transparent; border: none; color: #ff3366; cursor: pointer; text-decoration: underline; font-weight: bold; }
+        .total-carrito { font-size: 2.5rem; text-align: right; margin-top: 30px; font-family: var(--font-titulares); color: var(--morado); }
+        .btn-checkout { background-color: var(--negro); color: var(--blanco); width: 100%; padding: 20px; font-size: 1.5rem; border: none; font-family: var(--font-titulares); margin-top: 20px; cursor: pointer; transition: 0.3s; }
+        .btn-checkout:hover { background-color: var(--verde); color: var(--negro); }
+        .carrito-vacio { text-align: center; margin-top: 80px; font-size: 1.5rem; color: #888; font-family: var(--font-titulares); }
+
+        /* FOOTER */
+        footer { background-color: var(--negro); color: var(--blanco); text-align: center; padding: 60px 5% 30px; border-top: 2px solid var(--morado); }
+        .footer-logo { height: 110px; margin-bottom: 20px; object-fit: contain; }
+        .redes { margin: 20px 0; }
+        .redes a { color: var(--verde); text-decoration: none; margin: 0 10px; font-family: var(--font-titulares); transition: color 0.3s; }
+        .redes a:hover { color: var(--morado); }
+        
+        /* ========================================= */
+        /* CONTENEDOR WHATSAPP FLOTANTE Y GLOBO      */
+        /* ========================================= */
+        .wa-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .wa-tooltip {
+            position: absolute;
+            bottom: 75px; 
+            right: 0;
+            width: max-content;
+            max-width: 260px;
+            background-color: var(--negro);
+            color: var(--blanco);
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-family: var(--font-textos);
+            font-size: 0.95rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 1px solid #333;
+            text-align: center;
+            line-height: 1.4;
+            
+            /* Efecto de escondido por defecto */
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(15px);
+            transition: all 0.3s ease;
+        }
+
+        .wa-tooltip::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            right: 24px;
+            border-width: 6px 6px 0 6px;
+            border-style: solid;
+            border-color: var(--negro) transparent transparent transparent;
+        }
+
+        /* Mostrar el tooltip SOLO al pasar el mouse */
+        .wa-container:hover .wa-tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .wa-btn {
+            background: var(--verde);
+            color: var(--negro);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-titulares);
+            text-decoration: none;
+            border: 2px solid var(--negro);
+            font-size: 1.2rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .wa-btn:hover { 
+            transform: scale(1.1) rotate(5deg); 
+            box-shadow: 0px 5px 15px rgba(0,0,0,0.3); 
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <img src="https://i.ibb.co/qMFFgGkX/Logo-Kwik-Negro.png" alt="KWIK" class="logo-img" onclick="navegar('home')">
+        <nav>
+            <a onclick="navegar('home')">Inicio</a>
+            <a onclick="navegar('carrito')" class="cart-btn">Carrito (<span id="cart-count">0</span>)</a>
+        </nav>
+    </header>
+
+    <div id="vista-home" class="vista activa">
+        <section class="hero" id="hero-section">
+            <canvas id="particles-canvas"></canvas>
+            <div class="hero-content">
+                <h1>Rápido. Fácil. <span class="resalto-kwik">KWIK<span>.</span></span></h1>
+                <p>El mejor catálogo de Moda, Tenis, Tecnología, Belleza, Hogar y Entretenimiento.</p>
+                <button class="btn-principal" onclick="document.getElementById('cat-seccion').scrollIntoView({behavior: 'smooth'})">Explorar Todo</button>
+            </div>
+        </section>
+
+        <section id="cat-seccion" class="categorias">
+            <h2>Categorías</h2>
+            <div class="grid-categorias">
+                <div class="card-cat" onclick="cargarCatalogo('moda')">
+                    <h3>MODA</h3><p>Streetwear y tendencias.</p>
+                </div>
+                <div class="card-cat" onclick="cargarCatalogo('tenis')">
+                    <h3>TENIS</h3><p>Sneakers exclusivos.</p>
+                </div>
+                <div class="card-cat" onclick="cargarCatalogo('tecnologia')">
+                    <h3>TECNOLOGÍA</h3><p>Gadgets de última gen.</p>
+                </div>
+                <div class="card-cat" onclick="cargarCatalogo('belleza')">
+                    <h3>BELLEZA</h3><p>Skincare y cuidado.</p>
+                </div>
+                <div class="card-cat" onclick="cargarCatalogo('entretenimiento')">
+                    <h3>ENTRETENIMIENTO</h3><p>Diversión y gaming.</p>
+                </div>
+                <div class="card-cat" onclick="cargarCatalogo('hogar')">
+                    <h3>HOGAR</h3><p>Deco y practicidad.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="vista-catalogo" class="vista">
+        <div style="padding: 20px 5%;">
+            <a style="cursor:pointer; color:var(--morado); font-weight:bold;" onclick="navegar('home')">← Volver a Categorías</a>
+        </div>
+        <h2 id="titulo-catalogo" class="titulo-seccion">Catálogo</h2>
+        <div id="grid-productos" class="grid-productos"></div>
+    </div>
+
+    <div id="vista-producto" class="vista">
+        <div style="padding: 20px 5%;">
+            <a style="cursor:pointer; color:var(--morado); font-weight:bold;" onclick="navegar('catalogo')">← Volver al Catálogo</a>
+        </div>
+        <div class="pdp-container">
+            <div class="pdp-gallery">
+                <div class="pdp-thumbnails" id="pdp-thumbnails"></div>
+                <div class="pdp-main-img-container">
+                    <img id="pdp-main-img" class="pdp-main-img" src="" alt="Producto">
+                </div>
+            </div>
+            <div class="pdp-info">
+                <h2 id="pdp-title" class="pdp-title">Nombre</h2>
+                <p id="pdp-subtitle" class="pdp-subtitle">Subtítulo</p>
+                <p id="pdp-price" class="pdp-price">$0</p>
+                <p id="pdp-promo" class="pdp-promo"></p>
+                <p id="pdp-desc" class="pdp-desc">Descripción</p>
+
+                <div class="pdp-section-title">Colores Disponibles</div>
+                <div id="pdp-colors" class="pdp-colors"></div>
+
+                <div class="pdp-section-title"><span>Selecciona tu talla</span></div>
+                <div id="pdp-sizes" class="pdp-sizes"></div>
+
+                <button class="btn-add-pdp" onclick="agregarDesdePDP()">Añadir al Carrito</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="vista-carrito" class="vista">
+        <div class="carrito-container">
+            <h2 style="font-size: 3rem; border-bottom: 2px solid var(--negro); margin-bottom: 20px; padding-bottom: 10px;">Tu Pedido</h2>
+            <div id="items-carrito"></div>
+            <div id="carrito-footer">
+                <div class="total-carrito">Total: $<span id="precio-total">0</span> COP</div>
+                <button class="btn-checkout" onclick="enviarPedidoWhatsApp()">CONFIRMAR PEDIDO POR WHATSAPP ⚡</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENEDOR WA CON GLOBO MODIFICADO PARA HOVER -->
+    <div class="wa-container">
+        <div class="wa-tooltip">Escríbenos para recibir más información sobre nuestros productos</div>
+        <a href="https://wa.me/573124293786?text=Hola,%20tengo%20una%20duda%20sobre%20Kwik..." target="_blank" class="wa-btn">WA</a>
+    </div>
+
+    <footer>
+        <img src="https://i.ibb.co/fY3LPBjf/Logo-Kwik-Reducido.png" alt="K" class="footer-logo">
+        <h2 style="margin-bottom: 15px;">RÁPIDO. FÁCIL. KWIK.</h2>
+        <p><a href="mailto:kwikcol.info@gmail.com" style="color:var(--blanco); text-decoration:none; font-size:1.1rem;">kwikcol.info@gmail.com</a></p>
+        <div class="redes">
+            <a href="https://www.instagram.com/kwikcol" target="_blank">Instagram</a>
+            <a href="https://wa.me/573124293786" target="_blank">WhatsApp</a>
+        </div>
+        <p style="font-size: 12px; color: #666; margin-top: 30px;">© 2024 KWIK. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particlesArray = [];
+        let mouseX = 0, mouseY = 0;
+
+        function resizeCanvas() { canvas.width = canvas.parentElement.offsetWidth; canvas.height = canvas.parentElement.offsetHeight; }
+        window.addEventListener('resize', resizeCanvas);
+        document.getElementById('hero-section').addEventListener('mousemove', function(e) {
+            let rect = canvas.getBoundingClientRect();
+            mouseX = (e.clientX - rect.left) - canvas.width / 2;
+            mouseY = (e.clientY - rect.top) - canvas.height / 2;
+        });
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5; this.speedX = Math.random() * 0.4 - 0.2; this.speedY = Math.random() * 0.4 - 0.2;
+                this.parallaxFactor = Math.random() * 0.05 + 0.01; 
+                let colorRandom = Math.random();
+                if(colorRandom > 0.9) this.color = 'rgba(198, 255, 54, 0.4)'; 
+                else if (colorRandom > 0.8) this.color = 'rgba(125, 57, 235, 0.4)'; 
+                else this.color = 'rgba(255, 255, 255, 0.2)'; 
+            }
+            update() {
+                this.x += this.speedX; this.y += this.speedY;
+                if (this.x < 0) this.x = canvas.width; if (this.x > canvas.width) this.x = 0;
+                if (this.y < 0) this.y = canvas.height; if (this.y > canvas.height) this.y = 0;
+                let targetX = this.x + (mouseX * this.parallaxFactor); let targetY = this.y + (mouseY * this.parallaxFactor);
+                ctx.beginPath(); ctx.arc(targetX, targetY, this.size, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.fill();
+            }
+        }
+        function initParticles() { particlesArray = []; resizeCanvas(); let num = (canvas.width * canvas.height) / 8000; for (let i = 0; i < num; i++) particlesArray.push(new Particle()); }
+        function animateParticles() { ctx.clearRect(0, 0, canvas.width, canvas.height); for (let i = 0; i < particlesArray.length; i++) particlesArray[i].update(); requestAnimationFrame(animateParticles); }
+        initParticles(); animateParticles();
+
+        // ==========================================
+        // BASE DE DATOS ACTUALIZADA CON AIR JORDAN
+        // ==========================================
+        const baseDeDatos = {
+            moda: [], 
+            tenis: [
+                { 
+                    id: 201, 
+                    nombre: "Nike MC Trainer 3", 
+                    subtitulo: "Running Shoes",
+                    precio: 290000, 
+                    promo: "¡Precio de oferta de temporada!",
+                    descripcion: "Calzado diseñado para entrenamiento y running. Los Nike MC Trainer 3 ofrecen estabilidad, durabilidad y máxima comodidad para tu rendimiento.",
+                    imagenes: [
+                        "https://i.postimg.cc/PJqTvnM2/Captura-de-Pantalla-2026-06-22-a-la(s)-12-27-20-p-m.png",
+                        "https://i.postimg.cc/4yFZz28t/Captura-de-Pantalla-2026-06-22-a-la(s)-12-27-48-p-m.png",
+                        "https://i.postimg.cc/4yFZz28p/Captura-de-Pantalla-2026-06-22-a-la(s)-12-28-00-p-m.png",
+                        "https://i.postimg.cc/QCnspY6p/Captura-de-Pantalla-2026-06-22-a-la(s)-12-28-11-p-m.png",
+                        "https://i.postimg.cc/cC5ZQkDw/Captura-de-Pantalla-2026-06-22-a-la(s)-12-28-24-p-m.png",
+                        "https://i.postimg.cc/j2kKz38H/Captura-de-Pantalla-2026-06-22-a-la(s)-12-28-40-p-m.png",
+                        "https://i.postimg.cc/SRtqW1ZG/Captura-de-Pantalla-2026-06-22-a-la(s)-12-29-07-p-m.png",
+                        "https://i.postimg.cc/8cnDhXyX/Captura-de-Pantalla-2026-06-22-a-la(s)-12-29-21-p-m.png"
+                    ],
+                    colores: ["Negro"],
+                    tallas: ["40.5"]
+                },
+                { 
+                    id: 202, 
+                    nombre: "Air Jordan 1 Low", 
+                    subtitulo: "Estilo icónico",
+                    precio: 550000, 
+                    promo: "Promoción de temporada",
+                    descripcion: "El Air Jordan 1 Low ofrece un estilo clásico y versátil que nunca pasa de moda. Un diseño icónico perfecto para tu día a día.",
+                    imagenes: [
+                        "https://i.postimg.cc/pXR5Lm8L/Captura-de-Pantalla-2026-06-22-a-la(s)-1-00-56-p-m.png",
+                        "https://i.postimg.cc/4NsHxYtY/Captura-de-Pantalla-2026-06-22-a-la(s)-1-01-07-p-m.png",
+                        "https://i.postimg.cc/MKqfpnRv/Captura-de-Pantalla-2026-06-22-a-la(s)-1-01-20-p-m.png",
+                        "https://i.postimg.cc/zX8HGyWR/Captura-de-Pantalla-2026-06-22-a-la(s)-1-01-33-p-m.png",
+                        "https://i.postimg.cc/5NbQ2Xvz/Captura-de-Pantalla-2026-06-22-a-la(s)-1-01-46-p-m.png",
+                        "https://i.postimg.cc/BQ4PnjD5/Captura-de-Pantalla-2026-06-22-a-la(s)-1-01-58-p-m.png",
+                        "https://i.postimg.cc/pXR5Lm8J/Captura-de-Pantalla-2026-06-22-a-la(s)-1-02-11-p-m.png",
+                        "https://i.postimg.cc/FsNkHYcx/Captura-de-Pantalla-2026-06-22-a-la(s)-12-58-45-p-m.png",
+                        "https://i.postimg.cc/rFj00qCt/Captura-de-Pantalla-2026-06-22-a-la(s)-12-59-03-p-m.png"
+                    ],
+                    colores: ["Blanco", "Café", "Negro", "Azul", "Rojo"],
+                    tallas: ["H 40", "H 41", "H 42", "H 42.5", "M 42", "M 43", "M 44", "M 44.5"]
+                }
+            ],
+            tecnologia: [],
+            belleza: [],
+            entretenimiento: [],
+            hogar: []
+        };
+
+        let carrito = [];
+        let categoriaActual = '';
+        let prodSeleccionado = null;
+        let colorSeleccionado = null;
+        let tallaSeleccionada = null;
+
+        function navegar(vistaDestino) {
+            document.querySelectorAll('.vista').forEach(v => v.classList.remove('activa'));
+            document.getElementById(`vista-${vistaDestino}`).classList.add('activa');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if(vistaDestino === 'carrito') actualizarCarritoUI();
+        }
+
+        function cargarCatalogo(categoria) {
+            categoriaActual = categoria;
+            const grid = document.getElementById('grid-productos');
+            document.getElementById('titulo-catalogo').innerText = categoria.toUpperCase();
+            grid.innerHTML = '';
+
+            if(baseDeDatos[categoria].length === 0) {
+                grid.innerHTML = '<p style="text-align:center; width:100%; color:#888;">Próximamente nuevos productos aquí.</p>';
+            }
+
+            baseDeDatos[categoria].forEach(prod => {
+                const html = `
+                    <div class="card-prod" onclick="abrirProducto(${prod.id})">
+                        <img src="${prod.imagenes[0]}" class="prod-img" alt="${prod.nombre}">
+                        <h3 style="font-size:1.3rem;">${prod.nombre}</h3>
+                        <p style="color:#666; font-size:0.9rem;">${prod.colores.length} Color(es)</p>
+                        <p class="prod-precio">$${prod.precio.toLocaleString('es-CO')}</p>
+                    </div>
+                `;
+                grid.innerHTML += html;
+            });
+
+            navegar('catalogo');
+        }
+
+        function abrirProducto(id) {
+            prodSeleccionado = baseDeDatos[categoriaActual].find(p => p.id === id);
+            colorSeleccionado = null;
+            tallaSeleccionada = null;
+
+            document.getElementById('pdp-title').innerText = prodSeleccionado.nombre;
+            document.getElementById('pdp-subtitle').innerText = prodSeleccionado.subtitulo || "Exclusivo Kwik";
+            document.getElementById('pdp-price').innerText = `$${prodSeleccionado.precio.toLocaleString('es-CO')}`;
+            document.getElementById('pdp-promo').innerText = prodSeleccionado.promo || "";
+            document.getElementById('pdp-desc').innerText = prodSeleccionado.descripcion || "Producto de alta calidad garantizado por Kwik.";
+
+            const mainImg = document.getElementById('pdp-main-img');
+            const thumbsContainer = document.getElementById('pdp-thumbnails');
+            mainImg.src = prodSeleccionado.imagenes[0]; 
+            thumbsContainer.innerHTML = '';
+            
+            prodSeleccionado.imagenes.forEach((imgUrl, index) => {
+                const img = document.createElement('img');
+                img.src = imgUrl;
+                img.className = index === 0 ? 'pdp-thumb activa' : 'pdp-thumb';
+                img.onclick = () => {
+                    mainImg.src = imgUrl; 
+                    document.querySelectorAll('.pdp-thumb').forEach(t => t.classList.remove('activa'));
+                    img.classList.add('activa');
+                };
+                thumbsContainer.appendChild(img);
+            });
+
+            const colorsContainer = document.getElementById('pdp-colors');
+            colorsContainer.innerHTML = '';
+            if (prodSeleccionado.colores && prodSeleccionado.colores.length > 0) {
+                prodSeleccionado.colores.forEach(color => {
+                    const btn = document.createElement('button');
+                    btn.className = 'color-btn';
+                    btn.innerText = color;
+                    btn.onclick = () => {
+                        colorSeleccionado = color;
+                        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                    };
+                    colorsContainer.appendChild(btn);
+                });
+            } else {
+                colorsContainer.innerHTML = '<p>Color Único</p>';
+                colorSeleccionado = "Único";
+            }
+
+            const sizesContainer = document.getElementById('pdp-sizes');
+            sizesContainer.innerHTML = '';
+            if (prodSeleccionado.tallas && prodSeleccionado.tallas.length > 0) {
+                prodSeleccionado.tallas.forEach(talla => {
+                    const btn = document.createElement('button');
+                    btn.className = 'size-btn';
+                    btn.innerText = talla;
+                    btn.onclick = () => {
+                        tallaSeleccionada = talla;
+                        document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                    };
+                    sizesContainer.appendChild(btn);
+                });
+            } else {
+                sizesContainer.innerHTML = '<p>Talla Única</p>';
+                tallaSeleccionada = "Única";
+            }
+
+            navegar('producto');
+        }
+
+        function agregarDesdePDP() {
+            if (!prodSeleccionado) return;
+            if (!colorSeleccionado) { alert("⚠️ Por favor selecciona un color."); return; }
+            if (!tallaSeleccionada) { alert("⚠️ Por favor selecciona una talla."); return; }
+
+            const idVariante = `${prodSeleccionado.id}-${colorSeleccionado}-${tallaSeleccionada}`;
+            const itemExistente = carrito.find(item => item.idVariante === idVariante);
+            
+            if (itemExistente) {
+                itemExistente.cantidad++;
+            } else {
+                carrito.push({ 
+                    idVariante: idVariante,
+                    idOriginal: prodSeleccionado.id, 
+                    nombre: prodSeleccionado.nombre, 
+                    precio: prodSeleccionado.precio, 
+                    color: colorSeleccionado,
+                    talla: tallaSeleccionada,
+                    cantidad: 1 
+                });
+            }
+            
+            const cartBtn = document.querySelector('.cart-btn');
+            cartBtn.style.transform = 'scale(1.2)';
+            setTimeout(() => cartBtn.style.transform = 'scale(1)', 200);
+
+            document.getElementById('cart-count').innerText = carrito.reduce((sum, i) => sum + i.cantidad, 0);
+            alert(`✅ ${prodSeleccionado.nombre} agregado al carrito!`);
+        }
+
+        function removerDelCarrito(index) {
+            carrito.splice(index, 1);
+            document.getElementById('cart-count').innerText = carrito.reduce((sum, i) => sum + i.cantidad, 0);
+            actualizarCarritoUI();
+        }
+
+        function actualizarCarritoUI() {
+            const container = document.getElementById('items-carrito');
+            const footer = document.getElementById('carrito-footer');
+            container.innerHTML = '';
+
+            if (carrito.length === 0) {
+                container.innerHTML = '<p class="carrito-vacio">Tu carrito está vacío. <br><br> ¡Ve a explorarlo y llénalo, Kwik!</p>';
+                footer.style.display = 'none';
+                return;
+            }
+
+            footer.style.display = 'block';
+            let total = 0;
+
+            carrito.forEach((item, index) => {
+                total += item.precio * item.cantidad;
+                container.innerHTML += `
+                    <div class="item-carrito">
+                        <div class="item-info">
+                            <h4>${item.nombre} (x${item.cantidad})</h4>
+                            <p class="item-variante">Color: ${item.color} | Talla: ${item.talla}</p>
+                            <p>$${(item.precio * item.cantidad).toLocaleString('es-CO')} COP</p>
+                        </div>
+                        <button class="btn-remove" onclick="removerDelCarrito(${index})">Eliminar</button>
+                    </div>
+                `;
+            });
+
+            document.getElementById('precio-total').innerText = total.toLocaleString('es-CO');
+        }
+
+        function enviarPedidoWhatsApp() {
+            let mensaje = "⚡ *NUEVO PEDIDO KWIK* ⚡%0A%0A";
+            let total = 0;
+
+            carrito.forEach(item => {
+                mensaje += `- ${item.cantidad}x ${item.nombre}%0A  (Color: ${item.color}, Talla: ${item.talla})%0A  $${(item.precio * item.cantidad).toLocaleString('es-CO')}%0A%0A`;
+                total += item.precio * item.cantidad;
+            });
+
+            mensaje += `*TOTAL: $${total.toLocaleString('es-CO')} COP*%0A%0A¡Hola! Vengo de la página web de KWIK y quiero confirmar este pedido.`;
+
+            const numeroWa = "573124293786"; 
+            window.open(`https://wa.me/${numeroWa}?text=${mensaje}`, '_blank');
+        }
+    </script>
+</body>
+</html>
